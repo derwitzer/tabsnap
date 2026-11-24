@@ -20,9 +20,41 @@ export async function restoreTabs(tabs) {
 const RESTORE_WARNING =
     "Achtung es werden sämtliche offene Tabs geschlossen und die zum Zeitpunkt der Speicherung wiederhergestellt.";
 
-export async function restoreSession(tabs) {
-    if (!confirm(RESTORE_WARNING)) return;
+// Zeigt eine Bestätigung direkt im Snapshot-Eintrag an.
+// Liefert true bei OK, false bei Abbrechen.
+function confirmInline(row, message) {
+    return new Promise((resolve) => {
+        const box = document.createElement("div");
+        box.className = "confirm";
 
+        const text = document.createElement("p");
+        text.textContent = message;
+
+        const buttons = document.createElement("div");
+        buttons.className = "confirm-buttons";
+
+        const cancel = document.createElement("button");
+        cancel.textContent = "Abbrechen";
+
+        const ok = document.createElement("button");
+        ok.className = "danger";
+        ok.textContent = "OK";
+
+        const done = (result) => {
+            box.remove();
+            resolve(result);
+        };
+        cancel.addEventListener("click", () => done(false));
+        ok.addEventListener("click", () => done(true));
+
+        buttons.append(cancel, ok);
+        box.append(text, buttons);
+        row.append(box);
+        cancel.focus();
+    });
+}
+
+export async function restoreSession(tabs) {
     // IDs der aktuell offenen Tabs merken, bevor neue dazukommen
     const oldTabIds = (await chrome.tabs.query({})).map((t) => t.id);
 
@@ -67,7 +99,12 @@ function renderSnapshot(snapshot) {
     const restore = document.createElement("button");
     restore.className = "restore";
     restore.textContent = "Wiederherstellen";
-    restore.addEventListener("click", () => restoreSession(snapshot.tabs));
+    restore.addEventListener("click", async () => {
+        if (row.querySelector(".confirm")) return; // Abfrage ist schon offen
+        if (await confirmInline(row, RESTORE_WARNING)) {
+            await restoreSession(snapshot.tabs);
+        }
+    });
 
     const list = document.createElement("ul");
     list.className = "tab-list";
