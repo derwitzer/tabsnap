@@ -1,5 +1,58 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                width: 340px;
+                margin: 0;
+                padding: 8px;
+                font: 13px system-ui, sans-serif;
+            }
+            .snapshot {
+                padding: 6px 8px;
+                border-radius: 4px;
+                margin-bottom: 4px;
+            }
+            /* alle außer dem neuesten Snapshot leicht grau */
+            .snapshot + .snapshot {
+                background: #f0f0f0;
+            }
+            .snapshot-header {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .time {
+                flex: 1;
+            }
+            .toggle {
+                border: none;
+                background: none;
+                cursor: pointer;
+                padding: 0 2px;
+                font-size: 10px;
+            }
+            .restore {
+                font-size: 11px;
+                cursor: pointer;
+            }
+            .tab-list {
+                margin: 4px 0 0 22px;
+                padding: 0;
+                list-style: none;
+                color: #555;
+            }
+            .tab-list li {
+                cursor: pointer;
+                padding: 1px 0;
+            }
+            .tab-list li:hover {
+                color: #1a73e8;
+                text-decoration: underline;
+            }
+        </style>
+    </head>
     <body>
         <div id="savedSnapshots"></div>
         <script type="module" src="popup.js"></script>
